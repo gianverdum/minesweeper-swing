@@ -52,7 +52,7 @@ public class Tile {
 
     }
 
-    void changeFlag() {
+    public void changeFlag() {
         if(!openStatus) {
             flagStatus = !flagStatus;
 
@@ -64,7 +64,7 @@ public class Tile {
         }
     }
 
-    boolean open() {
+    public boolean open() {
         if(!openStatus && !flagStatus) {
 
             if(mineStatus) {
@@ -82,7 +82,7 @@ public class Tile {
         }
     }
 
-    boolean safeNeighbours() {
+    public boolean safeNeighbours() {
         return neighbours.stream().noneMatch(n -> n.mineStatus);
     }
 
@@ -124,8 +124,8 @@ public class Tile {
         return revealed || safe;
     }
 
-    long minesOnNeighbourhood() {
-        return neighbours.stream().filter(n -> n.mineStatus).count();
+    public int minesOnNeighbourhood() {
+        return (int) neighbours.stream().filter(n -> n.mineStatus).count();
     }
 
     void reset() {
