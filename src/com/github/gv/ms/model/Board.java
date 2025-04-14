@@ -115,6 +115,7 @@ public class Board implements TileObserver {
     private void showMines() {
         tiles.stream()
                 .filter(t -> t.hasMine())
+                .filter(t -> !t.hasFlag())
                 .forEach(t -> t.setOpen(true));
     }
 

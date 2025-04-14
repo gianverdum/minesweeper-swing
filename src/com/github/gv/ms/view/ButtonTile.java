@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URL;
 
 public class ButtonTile extends
         JButton implements TileObserver, MouseListener {
@@ -22,6 +23,7 @@ public class ButtonTile extends
     public ButtonTile(Tile tile) {
         this.tile = tile;
         setBackground(BG_DEFAULT);
+        setOpaque(true);
         setBorder(BorderFactory.createBevelBorder(0));
 
         addMouseListener(this);
@@ -46,8 +48,16 @@ public class ButtonTile extends
     }
 
     private void applyOpenStyle() {
-        setBackground(BG_DEFAULT);
+
         setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        if(tile.hasMine()) {
+            setBackground(BG_EXPLODE);
+            setIcon(loadScaledIcon("/img/mine.png",16,16));
+            return;
+        }
+
+        setBackground(BG_DEFAULT);
 
         switch (tile.minesOnNeighbourhood()) {
             case 1:
@@ -72,10 +82,16 @@ public class ButtonTile extends
         setText(value);
     }
     private void applyFlagStyle() {
+        setBackground(BG_FLAG);
+        setIcon(loadScaledIcon("/img/flag.jpg",16,16));
     }
     private void applyExplodeStyle() {
+        setBackground(BG_EXPLODE);
+        setIcon(loadScaledIcon("/img/mine.png",16,16));
     }
     private void applyDefaultStyle() {
+        setBackground(BG_DEFAULT);
+        setText("");
     }
 
     @Override
@@ -95,4 +111,15 @@ public class ButtonTile extends
     public void mouseReleased(MouseEvent mouseEvent) {}
     public void mouseEntered(MouseEvent mouseEvent) {}
     public void mouseExited(MouseEvent mouseEvent) {}
+
+    private ImageIcon loadScaledIcon(String path, int width, int height) {
+        URL iconURL = getClass().getResource(path);
+        if (iconURL == null) {
+            System.err.println("Image not found: " + path);
+            return null;
+        }
+        ImageIcon icon = new ImageIcon(iconURL);
+        Image scaledImage = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaledImage);
+    }
 }
