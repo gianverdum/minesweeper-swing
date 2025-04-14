@@ -7,9 +7,9 @@ import java.util.function.Predicate;
 
 public class Board implements TileObserver {
 
-    private int rows;
-    private int cols;
-    private int mines;
+    private final int rows;
+    private final int cols;
+    private final int mines;
 
     private final List<Tile> tiles = new ArrayList<Tile>();
     private final List<Consumer<Boolean>> observers =
@@ -23,6 +23,10 @@ public class Board implements TileObserver {
         generateTiles();
         assignNeighbours();
         sortMines();
+    }
+
+    public void forEachTile(Consumer<Tile> function) {
+        tiles.forEach(function);
     }
 
     public void registerObserver(Consumer<Boolean> observer) {
@@ -84,6 +88,18 @@ public class Board implements TileObserver {
     public void reset() {
         tiles.stream().forEach(Tile::reset);
         sortMines();
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public int getCols() {
+        return cols;
+    }
+
+    public int getMines() {
+        return mines;
     }
 
     @Override
