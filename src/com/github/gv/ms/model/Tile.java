@@ -2,6 +2,7 @@ package com.github.gv.ms.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class Tile {
 
@@ -13,6 +14,18 @@ public class Tile {
     private boolean flagStatus;
 
     private List<Tile> neighbours = new ArrayList<Tile>();
+
+    private List<TileObserver> observers = new ArrayList<>();
+//    private List<BiConsumer<Tile, TileEvent>> observers2 = new ArrayList<>(); // Alternative implementation with Method Interface
+
+    public void registerObserver(TileObserver observer) {
+        observers.add(observer);
+    }
+
+    private void notifyObservers(TileEvent event) {
+        observers.stream()
+                .forEach(o -> o.tileEvent(this, event));
+    }
 
     Tile(int row, int col) {
         this.row = row;
@@ -43,16 +56,23 @@ public class Tile {
     void changeFlag() {
         if(!openStatus) {
             flagStatus = !flagStatus;
+
+            if(flagStatus) {
+                notifyObservers(TileEvent.FLAG);
+            } else {
+                notifyObservers(TileEvent.UNFLAG);
+            }
         }
     }
 
     boolean open() {
         if(!openStatus && !flagStatus) {
-            openStatus = true;
 
             if(mineStatus) {
-                // TODO implementar nova versão
+                notifyObservers(TileEvent.EXPLODE);
+                return true;
             }
+            setOpen(true);
 
             if(safeNeighbours()) {
                 neighbours.forEach(Tile::open);
@@ -72,7 +92,11 @@ public class Tile {
     }
 
     void setOpen(boolean open) {
-        openStatus = open;
+        this.openStatus = open;
+
+        if (open) {
+            notifyObservers(TileEvent.OPEN);
+        }
     }
 
     public boolean isOpen() {
