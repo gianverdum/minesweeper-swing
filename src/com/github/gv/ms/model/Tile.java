@@ -2,7 +2,6 @@ package com.github.gv.ms.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class Tile {
 
@@ -24,7 +23,7 @@ public class Tile {
 
     private void notifyObservers(TileEvent event) {
         observers.stream()
-                .forEach(o -> o.tileEvent(this, event));
+                .forEach(o -> o.eventOccurred(this, event));
     }
 
     Tile(int row, int col) {

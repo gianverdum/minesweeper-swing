@@ -2,15 +2,18 @@ package com.github.gv.ms.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class Board {
+public class Board implements TileObserver {
 
     private int rows;
     private int cols;
     private int mines;
 
     private final List<Tile> tiles = new ArrayList<Tile>();
+    private final List<Consumer<Boolean>> observers =
+            new ArrayList<>();
 
     public Board(int rows, int cols, int mines) {
         this.rows = rows;
@@ -22,17 +25,20 @@ public class Board {
         sortMines();
     }
 
+    public void registerObserver(Consumer<Boolean> observer) {
+        observers.add(observer);
+    }
+
+    public void notifyObservers(boolean result) {
+        observers.stream()
+                .forEach(o -> o.accept(result));
+    }
+
     public void open(int row, int col) {
-        try {
-            tiles.parallelStream()
-                    .filter(t -> t.getRow() == row && t.getCol() == col)
-                    .findFirst()
-                    .ifPresent(t -> t.open());
-        } catch (Exception e) {
-            //FIXME Ajustar implementação do método open
-            tiles.forEach(t -> t.setOpen(true));
-            throw e;
-        }
+        tiles.parallelStream()
+                .filter(t -> t.getRow() == row && t.getCol() == col)
+                .findFirst()
+                .ifPresent(t -> t.open());
     }
 
     public void flag(int row, int col) {
@@ -45,7 +51,9 @@ public class Board {
     private void generateTiles() {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
-                tiles.add(new Tile(r, c));
+                Tile tile = new Tile(r, c);
+                tile.registerObserver(this);
+                tiles.add(tile);
             }
         }
     }
@@ -76,6 +84,22 @@ public class Board {
     public void reset() {
         tiles.stream().forEach(Tile::reset);
         sortMines();
+    }
+
+    @Override
+    public void eventOccurred(Tile tile, TileEvent event) {
+        if(event == TileEvent.EXPLODE) {
+            showMines();
+            notifyObservers(false);
+        } else if(goalAchieved()) {
+            notifyObservers(true);
+        }
+    }
+
+    private void showMines() {
+        tiles.stream()
+                .filter(t -> t.hasMine())
+                .forEach(t -> t.setOpen(true));
     }
 
 }
