@@ -132,6 +132,7 @@ public class Tile {
         openStatus = false;
         mineStatus = false;
         flagStatus = false;
+        notifyObservers(TileEvent.RESET);
     }
 
 }

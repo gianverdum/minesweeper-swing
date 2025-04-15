@@ -91,7 +91,9 @@ public class ButtonTile extends
     }
     private void applyDefaultStyle() {
         setBackground(BG_DEFAULT);
+        setBorder(BorderFactory.createBevelBorder(0));
         setText("");
+        setIcon(null);
     }
 
     @Override

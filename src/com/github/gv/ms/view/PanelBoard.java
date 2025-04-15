@@ -12,7 +12,16 @@ public class PanelBoard extends JPanel {
 
         board.forEachTile(tile -> add(new ButtonTile(tile)));
         board.registerObserver(e -> {
-            //TODO show result to the user
+            SwingUtilities.invokeLater(() -> {
+                Component parent = SwingUtilities.getWindowAncestor(this);
+                if(e) {
+                    JOptionPane.showMessageDialog(parent, "You win!");
+                } else {
+                    JOptionPane.showMessageDialog(parent, "You lose!");
+                }
+
+                board.reset();
+            });
         });
 
     }
